@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMPearth Town Guesser</title>
+    <style>
+
+@font-face { font-family: 'Minecraft'; src: url('Font/Monocraft.ttf'); } 
+@font-face { font-family: 'Minecraft'; font-weight: bold; src: url('Font/Monocraft.ttf');}
+
+        body {
+            font-family: 'Minecraft';
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('placeholder.jpg') no-repeat center center fixed; 
+            background-size: cover;
+            transition: background 0.3s ease-in-out;
+        }
+
+        #background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0; 
+        }
+
+        #background-video.loaded {
+            opacity: 1; 
+        }
+
+         #overlay {
+            text-align: center;
+        }
+        #loading-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            color: #ff4747;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+            z-index: 1;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+        }
+
+        p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7);
+        }
+
+        .buttons {
+            display: none;
+        }
+
+        button {
+            font-family: 'Minecraft';
+            background-color: #ff4747;
+            color: white;
+            font-size: 1.2rem;
+            padding: 15px 30px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        button:hover {
+            background-color: #666666;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(50, 50, 50, 0.9);
+            color: #ff4747;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            font-size: 1rem;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+ #game, #score {
+            position: relative;
+            z-index: 2;
+        }
+ .category {
+            position: relative;
+            z-index: 2;
+            margin: 40px auto;
+            padding: 40px;
+            background-color: rgba(25, 25, 25, 0.7);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            text-align: center;
+        }
+
+        #image-container {
+            width: 90%;
+            max-width: 980px;
+            max-height: 500px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0,0.7);
+            border: 5px solid #ff4747;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        #mapImage {
+            width: 100%;
+            height: auto;
+            transition: opacity 1s ease-in-out;
+        }
+
+        #input-container {
+            font-family: 'Minecraft';
+            position: relative;
+            z-index: 2;
+            margin: 0 auto;
+            width: 90%;
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        #guess {
+            font-family: 'Minecraft';
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 3.25px solid #ff4747;
+            border-radius: 5px;
+            flex-grow: 1;
+            max-width: 200px;
+            height: 20px;
+            vertical-align: middle;
+            outline: none;
+        }
+
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            z-index: 5;
+            display: none;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.75);
+            animation: fadeInOut 1s ease-in-out;
+        }
+
+#correctPopup {
+    background-color: rgba(0, 255, 0, 0.774); 
+    color: #fff;
+    animation: fadeInOut 1s ease-in-out;
+}
+
+#incorrectPopup {
+    background-color: rgba(255, 0, 0, 0.8); 
+    color: #fff;
+    animation: fadeInOut 1s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 2; }
+}
+
+.popup-end {
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    width: 350px;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.6);
+    display: none;
+    z-index: 10000;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#finalScoreText {
+    font-weight: bold;
+      
+}
+#maxAttempts {
+    font-weight: bold;
+      
+} 
+
+
+
+        #endPopup button {
+            display: block;
+            margin: 20px auto;
+            background-color: #ff4747;
+            color: white;
+            font-size: 1.2rem;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        #endPopup button:hover {
+            background-color: #666666;
+        }
+
+
+        footer > div {
+        flex: 1; 
+        }
+
+        footer a {
+            color: #ff4747;
+            text-decoration: none;
+        }
+
+       footer .centered {
+       text-align: center;
+       flex: 1; 
+       display: inline-block; 
+       }
+
+        footer a {
+            text-decoration: underline;
+            color: inherit;
+        }
+
+        footer .small-text {
+        font-size: 0.7rem; 
+        line-height: 1.3;
+        padding: 10 40px;
+        white-space: normal; 
+        word-wrap: break-word; 
+        }
+
+        footer .big-text {
+        font-size: 1.4rem;
+        }
+        
+        #categories {
+    display: none;
+}
+
+#start-button {
+    font-family: 'Minecraft';
+    vertical-align: middle;
+    background-color: #ff4747; 
+    color: white; 
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+#start-button:hover {
+    background-color: #666666;
+}
+
+#creditsPopup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    font-size: 1.5rem;
+    z-index: 5;
+    display: none;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+    
+}
+
+#creditsPopup a {
+        color: inherit;
+        text-decoration: underline; 
+    }
+
+#creditsPopup button {
+    font-family: 'Minecraft';
+    background-color: #ff4747;
+    color: white;
+    font-size: 1.2rem;
+    padding: 15px 30px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+}
+
+#creditsPopup button:hover {
+    background-color: #666666;
+}
+
+#toggle-video-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #ff4747;
+            color: white;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        #toggle-video-button:hover {
+            background-color: #ff0000;
+        }
+
+/* Styles for mobile*/
+@media (max-width: 600px) {
+    body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center; 
+        align-items: center; 
+        padding: 10px;
+        height: 100vh;
+    }
+
+    #overlay {
+        text-align: center;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    button {
+        font-size: 1rem;
+        padding: 8px 16px;
+        margin: 5px 0;
+    }
+
+    #categories {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #game {
+        width: 100%;
+    }
+
+    #image-container {
+        width: 100%;
+        text-align: center;
+    }
+
+    #mapImage {
+        width: 100%;
+        height: auto;
+    }
+
+    #input-container {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #guess {
+        width: 80%;
+        margin-bottom: 10px;
+    }
+
+    footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    footer .centered {
+        display: block;
+        margin: 10px 0;
+    }
+
+    footer .small-text {
+        font-size: 0.6rem;
+    }
+
+    footer .big-text {
+        font-size: 1rem;
+    }
+}
+
+
+    </style>
+</head>
+<body>
+    <video id="background-video" autoplay muted loop>
+        <source src="https://www.dropbox.com/scl/fi/kjzt7v338wyo25x7ibahj/Background-video.mp4?rlkey=0aso63z7wokkpc96atu0va91p&st=2n97hniz&raw=1" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <div id="overlay">
+        <h1>SMPE Town Guesser</h1>
+        <button id="start-button" onclick="initializeGame()">Play</button>
+    
+
+<div id="categories">
+    <div>
+        <button onclick="startGame('easy')">Easy</button>
+        <button onclick="startGame('medium')">Medium</button>
+        <button onclick="startGame('hard')">Hard</button>
+    </div>
+</div>
+      
+<div id="game" style="display: none;">
+    <div id="image-container">
+        <img id="mapImage" src="" alt="Town Screenshot">
+    </div>
+    <div id="input-container">
+        <input type="text" id="guess" placeholder="Enter town name">
+        <button onclick="submitGuess()">Submit</button>
+    </div>
+</div>
+
+<button id="toggle-video-button" onclick="toggleVideo()">Toggle Video</button>
+
+<footer>
+    <div id="credits-button" style="cursor: pointer;"><u>Credits</u> / <a href="https://github.com/Rot547/BF-Map-Guesser/issues" target="_blank">Bugs</a></div> 
+    <div class="centered big-text"><a href="https://github.com/Rot547/BF-Map-Guesser/issues" target="_blank">Got a Suggestion?</a></div>
+    <div class="small-text">Not owned by or affiliated<br>
+        with official<br>
+        <a href="https://www.smpearth.com" target="_blank">SMPEarth</a>
+    </div>
+</footer>
+
+<div class="popup" id="creditsPopup">
+    <p>Made by Rotblitz | <a href="https://www.github.com/Rot547" target="_blank">GitHub</a></p>
+    <p>Special thanks to R the Sombrero Man | <a href="https://github.com/themrburns/" target="_blank">GitHub</a></p>
+    <p>TNT1243 for  finding bugs | <a href="https://www.planetminecraft.com/member/tnt1243/" target="_blank">Planet Minecraft</a></p>
+    <button onclick="closeCreditsPopup()">Close</button>
+</div>
+
+
+<div class="popup" id="correctPopup">Correct! It was <span id="correctAnswerCorrect"></span>.</div>
+<div class="popup" id="incorrectPopup">Incorrect! The correct answer was <span id="correctAnswer"></span></div>
+<div id="endPopup" class="popup-end">
+    <p>Your final score is:</p>
+    <p><span id="finalScoreText"></span> / <span id="maxAttempts"></span></p>
+    <button onclick="restartGame(); closeEndPopup();">Play Again</button>
+</div>
+  
+
+</div>
+<script src="script.js"></script>
+</body>
+</html>
+
