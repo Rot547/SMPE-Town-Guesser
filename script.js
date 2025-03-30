@@ -112,8 +112,8 @@ const mapFrequencies = {
     'Yeoubi-Easy': 5,
     'Yeoubi-Hard': 6,
     'Brittany-Medium': 4,
-}
 
+};
 
 let currentMap = '';
 let currentCategory = '';
@@ -130,6 +130,7 @@ const mapNames = [
     'Hamatsu',
     'Brittany',
     'Rome',
+    'Yeoubi'
     
 ];
 
